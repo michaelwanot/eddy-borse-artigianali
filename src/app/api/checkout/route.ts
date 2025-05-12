@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   try {
     const { items } = await request.json()
 
-    const lineItems = items.map((item: any) => ({
+    const lineItems = items.map((item: { name: string; price: string; quantity: number }) => ({
       price_data: {
         currency: 'eur',
         product_data: {
@@ -30,10 +30,12 @@ export async function POST(request: Request) {
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout`,
     })
-
     return NextResponse.json({ url: session.url })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 })
   }
 }
