@@ -1,31 +1,43 @@
-// Pagina Shop – Elenco prodotti con stile coerente
+// Pagina Shop – Elenco prodotti con effetto visivo di aggiunta al carrello
 
-import React from "react";
+'use client'
+
+import React, { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useCart } from '@/context/CartContext';
 
 const products = [
   {
     id: 1,
     name: "Borsa Primavera",
-    price: "€79",
+    price: "79",
     image: "/products/borsa-primavera.jpg"
   },
   {
     id: 2,
     name: "Borsa Mare",
-    price: "€89",
+    price: "89",
     image: "/products/borsa-mare.jpg"
   },
   {
     id: 3,
     name: "Borsa Classica",
-    price: "€99",
+    price: "99",
     image: "/products/borsa-classica.jpg"
   },
 ];
 
 export default function Shop() {
+  const { dispatch } = useCart();
+  const [addedProductId, setAddedProductId] = useState<number | null>(null);
+
+  const handleAddToCart = (product: typeof products[0]) => {
+    dispatch({ type: 'ADD_ITEM', product });
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 1500);
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFCF9] text-[#3d3d3d]">
       <Head>
@@ -46,7 +58,7 @@ export default function Shop() {
         <h2 className="text-4xl font-serif mb-12 text-center">La nostra collezione</h2>
         <div className="grid gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {products.map((product) => (
-            <div key={product.id} className="bg-white p-6 rounded-3xl shadow-md hover:shadow-xl transition group">
+            <div key={product.id} className="relative bg-white p-6 rounded-3xl shadow-md hover:shadow-xl transition group">
               <img
                 src={product.image}
                 alt={product.name}
@@ -55,10 +67,19 @@ export default function Shop() {
               <h3 className="text-xl font-serif mb-1 text-[#3d3d3d] group-hover:underline">
                 {product.name}
               </h3>
-              <p className="text-[#a8745b] font-semibold text-base">{product.price}</p>
-              <button className="mt-6 w-full bg-[#D6B0A4] text-white py-2.5 rounded-full font-medium shadow hover:bg-[#c29b91] transition">
+              <p className="text-[#a8745b] font-semibold text-base">€ {product.price}</p>
+              <button
+                onClick={() => handleAddToCart(product)}
+                className="mt-6 w-full bg-[#D6B0A4] text-white py-2.5 rounded-full font-medium shadow hover:bg-[#c29b91] transition"
+              >
                 Aggiungi al carrello
               </button>
+
+              {addedProductId === product.id && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-3xl">
+                  <span className="text-green-600 font-semibold">Aggiunto al carrello ✓</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
